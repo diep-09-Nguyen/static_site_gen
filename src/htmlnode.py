@@ -8,38 +8,59 @@ class HTMLNode:
     ):
         self.tag = tag
         self.value = value
-        self.children = children
-        self.props = props
+        self.children = children or []
+        self.props = props or {}
 
     # children to override
     def to_html(self):
         raise NotImplementedError
 
     def props_to_html(self) -> str:
-        dicy = self.props
-        string: str = ""
+        return (
+            "".join(f' {key}="{value}"' for key, value in self.props.items())
+            if self.props
+            else ""
+        )
 
-        if not dicy:
-            return string
-
-        return "".join(f' {key}="{value}"' for key, value in dicy.items())
-        # for key in self.props:
-        #     string += f" {key} {self.props[key]}"
-        # return string
+    def __eq__(self, other) -> bool:
+        if not (isinstance(other, HTMLNode)):
+            return False
+        return (
+            self.tag == other.tag
+            and self.value == other.value
+            and self.children == other.children
+            and self.props == other.props
+        )
 
     def __repr__(self) -> str:
-        return f"HTMLNode({self.tag}, {self.value}, {self.children}, {self.props}"
+        return f"HTMLNode({self.tag}, {self.value}, {self.children}, {self.props})"
 
 
 class LeafNode(HTMLNode):
     def __init__(self, tag, value, children=None, props=None):
-        super().__init__(tag, value, children, props)
+        super().__init__(tag=tag, value=value, children=children, props=props)
 
     def to_html(self) -> str:
         if not self.value:
-            raise ValueError
+            raise ValueError("Expects a value")
 
-        string = self.value
-        if self.tag:
-            string = f"<{self.tag}{self.props_to_html()}>{string}</{self.tag}>"
-        return string
+        return (
+            f"<{self.tag}{self.props_to_html()}>{self.value}</{self.tag}>"
+            if self.tag
+            else self.value
+        )
+
+
+class ParentNode(HTMLNode):
+    def __init__(self, tag, children, props=None):
+        super().__init__(tag=tag, value=None, children=children, props=props)
+
+    def to_html(self) -> str:
+        if not self.tag:
+            raise ValueError("ParentNode expects a tag")
+        if not self.children:
+            raise ValueError("ParentNode expects children")
+
+        return "".join(
+            f"<{self.tag}>{item.to_html()}</{self.tag}>" for item in self.children
+        )

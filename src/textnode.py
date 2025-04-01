@@ -1,27 +1,46 @@
 from enum import Enum
 
+from htmlnode import LeafNode
+
 
 class TextType(Enum):
-    NORMAL = "normal"
-    BOLD = "bold"
-    ITALIC = "italic"
-    CODE = "code"
+    TEXT = ""
+    BOLD = "**"
+    ITALIC = "_"
+    CODE = "`"
     LINK = "link"
     IMAGE = "image"
 
 
 class TextNode:
-    def __init__(self, text, text_type, url=None):
+    def __init__(self, text: str, text_type: TextType | str, url: str | None = None):
+        if isinstance(text_type, str):
+            try:
+                text_type = TextType(text_type)
+            except ValueError:
+                raise TypeError(f"invalid type for TextType: {text_type}")
         self.text = text
         self.text_type = text_type
         self.url = url
 
-    def __eq__(
-        self,
-        value: object,
-    ) -> bool:
+    def text_node_to_html_node(self) -> LeafNode:
+        node_map = {
+            TextType.TEXT: LeafNode("", self.text),
+            TextType.BOLD: LeafNode("b", self.text),
+            TextType.ITALIC: LeafNode("i", self.text),
+            TextType.CODE: LeafNode("code", self.text),
+            TextType.LINK: LeafNode("a", self.text, [], {"href": self.url}),
+            TextType.IMAGE: LeafNode(
+                "img", "", [], {"src": self.url, "alt": self.text}
+            ),
+        }
+        try:
+            return node_map[self.text_type]
+        except KeyError:
+            raise ValueError(f"Unsupported text type: {self.text_type}")
+
+    def __eq__(self, value: object) -> bool:
         if not isinstance(value, TextNode):
-            print(f"Cannot compare a TextNode to a {type(value)}")
             return False
 
         return (

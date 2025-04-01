@@ -1,6 +1,6 @@
 import unittest
 
-from htmlnode import HTMLNode, LeafNode
+from htmlnode import HTMLNode, LeafNode, ParentNode
 
 
 class Test_HTMLNode(unittest.TestCase):
@@ -45,7 +45,63 @@ class Test_HTMLNode(unittest.TestCase):
         )
 
         # requires a value
-        self.assertRaises(ValueError, noValue.to_html)
+        with self.assertRaises(ValueError):
+            noValue.to_html()
 
         # requires a tag
         self.assertEqual(noTag.value, "no tag", "noTag value is not None")
+
+    def test_to_html_with_children(self):
+        child_node = LeafNode("span", "child")
+        parent_node = ParentNode("div", [child_node])
+        empty_child_node = ParentNode("a", None)
+        empty_tag_node = ParentNode(None, [child_node])
+        empty_nodes = [
+            (empty_child_node, "ParentNode expects children"),
+            (empty_tag_node, "ParentNode expects a tag"),
+        ]
+
+        # exception assert
+        for node in empty_nodes:
+            with self.assertRaisesRegex(ValueError, node[1]):
+                node[0].to_html()
+
+        self.assertEqual(parent_node.to_html(), "<div><span>child</span></div>")
+
+    def test_to_html_with_grandchildren(self):
+        grandchild_node = LeafNode("b", "grandchild")
+        child_node = ParentNode("span", [grandchild_node])
+        parent_node = ParentNode("div", [child_node])
+        parentparent_node = ParentNode("div", [parent_node])
+
+        no_children_node = ParentNode("a", None)
+        no_tag_node = ParentNode(None, [child_node])
+        empty_children = ParentNode("div", [])
+        empty_tag = ParentNode("", [child_node])
+        invalid_child_type = ParentNode("div", ["not a node"])
+
+        empty_nodes = [
+            (no_tag_node, "ParentNode expects a tag"),
+            (no_children_node, "ParentNode expects children"),
+            (empty_children, "ParentNode expects children"),
+            (empty_tag, "ParentNode expects a tag"),
+        ]
+
+        # exception assert
+        for node in empty_nodes:
+            with self.assertRaisesRegex(ValueError, node[1]):
+                node[0].to_html()
+
+        # invalid child node
+        with self.assertRaises(AttributeError):
+            invalid_child_type.to_html()
+
+        self.assertEqual(
+            parent_node.to_html(),
+            "<div><span><b>grandchild</b></span></div>",
+        )
+
+        self.assertEqual(
+            parentparent_node.to_html(),
+            "<div><div><span><b>grandchild</b></span></div></div>",
+        )
