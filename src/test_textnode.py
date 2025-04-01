@@ -1,6 +1,5 @@
 import unittest
 
-from enum import Enum
 from textnode import TextNode, TextType
 from htmlnode import LeafNode
 
@@ -53,13 +52,8 @@ class Test_TextNode(unittest.TestCase):
         self.assertEqual(node.text_node_to_html_node(), expected)
 
     def test_to_html_node_invalid_type(self):
-        class FakeType(Enum):
-            UNKNOWN = "unknown"
+        node = TextNode("oops", "bold")
+        node.text_type = "not a node"  # type: ignore
 
         with self.assertRaises(ValueError):
-            node = TextNode("oops", TextType(FakeType.UNKNOWN))
             node.text_node_to_html_node()
-
-
-if __name__ == "__main__":
-    unittest.main()

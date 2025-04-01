@@ -4,10 +4,10 @@ from htmlnode import LeafNode
 
 
 class TextType(Enum):
-    TEXT = ""
-    BOLD = "**"
-    ITALIC = "_"
-    CODE = "`"
+    TEXT = "text"
+    BOLD = "bold"
+    ITALIC = "italic"
+    CODE = "code"
     LINK = "link"
     IMAGE = "image"
 
@@ -37,7 +37,7 @@ class TextNode:
         try:
             return node_map[self.text_type]
         except KeyError:
-            raise ValueError(f"Unsupported text type: {self.text_type}")
+            raise ValueError(f"Invalid text type: {self.text_type}")
 
     def __eq__(self, value: object) -> bool:
         if not isinstance(value, TextNode):
