@@ -2,6 +2,7 @@ import unittest
 
 from textnode import TextNode, TextType
 from htmlnode import LeafNode
+from split_nodes_delimiter import split_nodes_image, split_nodes_link
 
 
 class Test_TextNode(unittest.TestCase):
@@ -44,10 +45,13 @@ class Test_TextNode(unittest.TestCase):
         expected = LeafNode("a", "click me", [], {"href": "http://example.com"})
         self.assertEqual(node.text_node_to_html_node(), expected)
 
-    def test_to_html_node_image(self):
-        node = TextNode("an image", TextType.IMAGE, "http://image.url")
+    def test_to_html_node_(self):
+        node = TextNode("an --line-number", TextType.IMAGE, "http://--line-number.url")
         expected = LeafNode(
-            "img", "", [], {"src": "http://image.url", "alt": "an image"}
+            "img",
+            "",
+            [],
+            {"src": "http://--line-number.url", "alt": "an --line-number"},
         )
         self.assertEqual(node.text_node_to_html_node(), expected)
 
@@ -57,3 +61,31 @@ class Test_TextNode(unittest.TestCase):
 
         with self.assertRaises(ValueError):
             node.text_node_to_html_node()
+
+    def test_split_images(self):
+        node = TextNode(
+            "This is text with an ![image](https://i.imgur.com/zjjcJKZ.png) and another ![second image](https://i.imgur.com/3elNhQu.png)",
+            TextType.TEXT,
+        )
+        result = split_nodes_image([node])
+        expected = [
+            TextNode("This is text with an ", TextType.TEXT),
+            TextNode("image", TextType.IMAGE, "https://i.imgur.com/zjjcJKZ.png"),
+            TextNode(" and another ", TextType.TEXT),
+            TextNode("second image", TextType.IMAGE, "https://i.imgur.com/3elNhQu.png"),
+        ]
+        self.assertListEqual(result, expected)
+
+    def test_split_links(self):
+        node = TextNode(
+            "This is text with an [link](https://i.imgur.com/zjjcJKZ.png) and another [second link](https://i.imgur.com/3elNhQu.png)",
+            TextType.TEXT,
+        )
+        result = split_nodes_link([node])
+        expected = [
+            TextNode("This is text with an ", TextType.TEXT),
+            TextNode("link", TextType.LINK, "https://i.imgur.com/zjjcJKZ.png"),
+            TextNode(" and another ", TextType.TEXT),
+            TextNode("second link", TextType.LINK, "https://i.imgur.com/3elNhQu.png"),
+        ]
+        self.assertListEqual(result, expected)
