@@ -13,6 +13,10 @@ class TextType(Enum):
 
 
 class TextNode:
+    text: str
+    text_type: TextType
+    url: str | None = None
+
     def __init__(self, text: str, text_type: TextType | str, url: str | None = None):
         if isinstance(text_type, str):
             try:
@@ -29,10 +33,8 @@ class TextNode:
             TextType.BOLD: LeafNode("b", self.text),
             TextType.ITALIC: LeafNode("i", self.text),
             TextType.CODE: LeafNode("code", self.text),
-            TextType.LINK: LeafNode("a", self.text, [], {"href": self.url}),
-            TextType.IMAGE: LeafNode(
-                "img", "", [], {"src": self.url, "alt": self.text}
-            ),
+            TextType.LINK: LeafNode("a", self.text, {"href": self.url}),
+            TextType.IMAGE: LeafNode("img", "", {"src": self.url, "alt": self.text}),
         }
         try:
             return node_map[self.text_type]

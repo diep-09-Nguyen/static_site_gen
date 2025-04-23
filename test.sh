@@ -1,1 +1,1 @@
-python3 -m unittest discover -sv src
+python3 -m unittest discover -s src -p test*.py #test*.py

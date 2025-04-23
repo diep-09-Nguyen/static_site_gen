@@ -1,3 +1,4 @@
+# pyright: ignore
 from textnode import TextNode, TextType
 from htmlnode import HTMLNode, LeafNode
 from split_nodes_delimiter import (

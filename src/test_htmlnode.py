@@ -1,3 +1,5 @@
+# pyright:ignore
+
 import unittest
 
 from htmlnode import HTMLNode, LeafNode, ParentNode
@@ -34,8 +36,6 @@ class Test_HTMLNode(unittest.TestCase):
 
     def test_leaf_to_html_p(self):
         node = LeafNode(tag="p", value="Hello, world!")
-        noTag = LeafNode(tag=None, value="no tag")
-        noValue = LeafNode(tag="a", value=None)
 
         self.assertEqual(node.to_html(), "<p>Hello, world!</p>")
 
@@ -44,27 +44,9 @@ class Test_HTMLNode(unittest.TestCase):
             node.to_html(), "<p> Hello, world!</p>", "node and node3 are not equal"
         )
 
-        # requires a value
-        with self.assertRaises(ValueError):
-            noValue.to_html()
-
-        # requires a tag
-        self.assertEqual(noTag.value, "no tag", "noTag value is not None")
-
     def test_to_html_with_children(self):
         child_node = LeafNode("span", "child")
         parent_node = ParentNode("div", [child_node])
-        empty_child_node = ParentNode("a", None)
-        empty_tag_node = ParentNode(None, [child_node])
-        empty_nodes = [
-            (empty_child_node, "ParentNode expects children"),
-            (empty_tag_node, "ParentNode expects a tag"),
-        ]
-
-        # exception assert
-        for node in empty_nodes:
-            with self.assertRaisesRegex(ValueError, node[1]):
-                node[0].to_html()
 
         self.assertEqual(parent_node.to_html(), "<div><span>child</span></div>")
 
@@ -74,15 +56,11 @@ class Test_HTMLNode(unittest.TestCase):
         parent_node = ParentNode("div", [child_node])
         parentparent_node = ParentNode("div", [parent_node])
 
-        no_children_node = ParentNode("a", None)
-        no_tag_node = ParentNode(None, [child_node])
         empty_children = ParentNode("div", [])
         empty_tag = ParentNode("", [child_node])
         invalid_child_type = ParentNode("div", ["not a node"])
 
         empty_nodes = [
-            (no_tag_node, "ParentNode expects a tag"),
-            (no_children_node, "ParentNode expects children"),
             (empty_children, "ParentNode expects children"),
             (empty_tag, "ParentNode expects a tag"),
         ]

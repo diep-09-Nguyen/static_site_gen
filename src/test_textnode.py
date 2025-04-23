@@ -42,7 +42,7 @@ class Test_TextNode(unittest.TestCase):
 
     def test_to_html_node_link(self):
         node = TextNode("click me", TextType.LINK, "http://example.com")
-        expected = LeafNode("a", "click me", [], {"href": "http://example.com"})
+        expected = LeafNode("a", "click me", {"href": "http://example.com"})
         self.assertEqual(node.text_node_to_html_node(), expected)
 
     def test_to_html_node_(self):
@@ -50,7 +50,6 @@ class Test_TextNode(unittest.TestCase):
         expected = LeafNode(
             "img",
             "",
-            [],
             {"src": "http://--line-number.url", "alt": "an --line-number"},
         )
         self.assertEqual(node.text_node_to_html_node(), expected)

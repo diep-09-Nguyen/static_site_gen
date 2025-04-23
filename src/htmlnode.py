@@ -1,10 +1,10 @@
 class HTMLNode:
     def __init__(
         self,
-        tag=None,  # str
-        value=None,  # str
-        children=None,  # list
-        props=None,  # dict
+        tag: str | None = None,
+        value: str | None = None,
+        children: list | None = None,
+        props: dict | None = None,
     ):
         self.tag = tag
         self.value = value
@@ -37,8 +37,13 @@ class HTMLNode:
 
 
 class LeafNode(HTMLNode):
-    def __init__(self, tag, value, children=None, props=None):
-        super().__init__(tag=tag, value=value, children=children, props=props)
+    def __init__(
+        self,
+        tag: str,
+        value: str,
+        props: dict | None = None,
+    ):
+        super().__init__(tag=tag, value=value, children=None, props=props)
 
     def to_html(self) -> str:
         if not self.value:
@@ -52,7 +57,7 @@ class LeafNode(HTMLNode):
 
 
 class ParentNode(HTMLNode):
-    def __init__(self, tag, children, props=None):
+    def __init__(self, tag: str, children: list, props: dict | None = None):
         super().__init__(tag=tag, value=None, children=children, props=props)
 
     def to_html(self) -> str:
@@ -60,7 +65,8 @@ class ParentNode(HTMLNode):
             raise ValueError("ParentNode expects a tag")
         if not self.children:
             raise ValueError("ParentNode expects children")
-
-        return "".join(
-            f"<{self.tag}>{item.to_html()}</{self.tag}>" for item in self.children
-        )
+        string = f"<{self.tag}>"
+        for child in self.children:
+            string += f"{child.to_html()}"
+        string += f"</{self.tag}>"
+        return string
