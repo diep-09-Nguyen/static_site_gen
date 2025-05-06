@@ -1,15 +1,10 @@
-# pyright: ignore
-from textnode import TextNode, TextType
-from htmlnode import HTMLNode, LeafNode
-from split_nodes_delimiter import (
-    split_nodes_delimiter,
-    split_nodes_image,
-    split_nodes_link,
-)
+from copytree import copytree
+from generate_page import generate_page, generate_page_recursive
 
 
 def main():
-    pass
+    copytree("static", "public")
+    generate_page_recursive("content", "template.html", "public")
 
 
 main()

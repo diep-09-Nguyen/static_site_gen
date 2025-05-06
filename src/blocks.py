@@ -1,7 +1,7 @@
 import re
 from enum import Enum
 
-from htmlnode import HTMLNode, LeafNode, ParentNode
+from htmlnode import HTMLNode, ParentNode
 from text_to_textnodes import text_to_textnodes
 from textnode import TextNode
 
@@ -111,9 +111,12 @@ def text_to_list_item(text: str):
     nodes = []
     for match in matches:
         nodes.append(text_to_textnodes(match))
+
     for node in nodes:
-        for textnode in node:
-            children.append(LeafNode("li", textnode.text, None))
+        temp = []
+        for item in node:
+            temp.append(item.text_node_to_html_node())
+        children.append(ParentNode("li", temp))
     return children
 
 

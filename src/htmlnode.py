@@ -11,7 +11,6 @@ class HTMLNode:
         self.children = children or []
         self.props = props or {}
 
-    # children to override
     def to_html(self):
         raise NotImplementedError
 
@@ -46,8 +45,8 @@ class LeafNode(HTMLNode):
         super().__init__(tag=tag, value=value, children=None, props=props)
 
     def to_html(self) -> str:
-        if not self.value:
-            raise ValueError("Expects a value")
+        if self.value is None:
+            raise ValueError(f"LeafNode expects a value: {self}")
 
         return (
             f"<{self.tag}{self.props_to_html()}>{self.value}</{self.tag}>"
@@ -62,9 +61,9 @@ class ParentNode(HTMLNode):
 
     def to_html(self) -> str:
         if not self.tag:
-            raise ValueError("ParentNode expects a tag")
+            raise ValueError(f"ParentNode expects a tag: {self}")
         if not self.children:
-            raise ValueError("ParentNode expects children")
+            raise ValueError(f"ParentNode expects children: {self}")
         string = f"<{self.tag}>"
         for child in self.children:
             string += f"{child.to_html()}"
